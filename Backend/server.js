@@ -2,54 +2,68 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const bodyParser = require('body-parser');
+const axios = require('axios');
 const moment = require('moment-timezone');
 const app = express();
 const port = 3000;
+const fastApiPort = 8000;
 
-// Serve static files from 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 
-// Create logs directory if it doesn't exist
 const logsDir = path.join(__dirname, 'logs');
 if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir);
 }
 
-// Endpoint to handle mouse movement data from the client-side script
-app.post('/logMouseMovements', (req, res) => {
+const classifyInteraction = async (data) => {
+    try {
+        const response = await axios.post(`http://localhost:${fastApiPort}/classify`, data); // Corrected API call
+        return response.data.classification;
+    } catch (error) {
+        console.error('Error communicating with FastAPI:', error);
+        return null;
+    }
+};
+
+const deleteJsonLog = (filePath) => {
+    fs.unlink(filePath, (err) => {
+        if (err) console.error('Error deleting the JSON log file:', err);
+        else console.log('JSON log file deleted successfully.');
+    });
+};
+
+app.post('/logMouseMovements', async (req, res) => {
     const data = req.body;
     const timestamp = moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss.SSS');
-
-    // Append timestamp to the data
     data.timestamp = timestamp;
 
-    // Determine log file
-    const logFile = path.join(logsDir, 'mouse_movements.csv');
+    const jsonFile = path.join(logsDir, 'mouse_movements.json');
+    fs.writeFileSync(jsonFile, JSON.stringify(data, null, 2));
 
-    // If file does not exist, create and add header
-    if (!fs.existsSync(logFile)) {
-        fs.writeFileSync(logFile, 'timestamp,numSegments,distinctMouseMotions,avgLength,avgTime,avgSpeed,varSpeed,varAcc,humanInteraction\n');
+    const classification = await classifyInteraction(data);
+
+    if (classification === 'human') {
+        deleteJsonLog(jsonFile);
+        res.redirect('/success');
+    } else if (classification === 'bot') {
+        deleteJsonLog(jsonFile);
+        res.redirect('/error');
+    } else {
+        res.status(500).send('Error classifying interaction');
     }
-
-    // Log the data
-    const logData = `${data.timestamp},${data.numSegments},${data.distinctMouseMotions},${data.avgLength},${data.avgTime},${data.avgSpeed},${data.varSpeed},${data.varAcc},${data.humanInteraction}\n`;
-    fs.appendFile(logFile, logData, (err) => {
-        if (err) {
-            console.error('Failed to log data', err);
-            res.status(500).send('Error logging data');
-        } else {
-            res.status(200).send('Data logged successfully');
-        }
-    });
 });
 
-// Routes to serve HTML files
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+app.get('/success', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'success.html'));
+});
+app.get('/error', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'error.html'));
+});
 
-// Start the server
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+    console.log('Server running at http://localhost:' + port);
 });
