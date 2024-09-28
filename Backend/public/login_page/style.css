@@ -1,89 +1,68 @@
-body {
+/* General reset */
+* {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
     font-family: Roboto, sans-serif;
     font-style: normal;
     font-weight: 400;
+    background-color: #f4f4f9;
 }
 
+/* Header styling */
 header {
     background-color: white;
     height: 70px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #020b50;;
+    border-bottom: 2px solid #020b50;
+    padding: 0 20px;
 }
 
-.left-logo {
-    align-items: center;
-    display: flex;
-    max-width: 70%;
-}
-.right-logo{
-    align-items: center;
-    display: flex;
-    max-width: 20%;
+.left-logo img, .right-logo img {
+    max-height: 50px;
 }
 
-
-h1 {
-    font-size: 1.2rem;
-    margin: 0;
-}
-
-header p {
-    font-size: 0.9rem;
-    color: #666;
-    margin: 0;
-}
-
+/* Main section */
 main {
-    flex-grow: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 2rem;
+    height: calc(100vh - 140px); /* Adjust for header and footer */
 }
 
-.login_section_description{
+.login-section {
+    text-align: center;
+}
+
+.login_section_description {
     color: #020b50;
     font-weight: 600;
     padding: 5px 10px;
-    text-align: center;
+    margin-bottom: 10px;
 }
 
 .card {
+    background: white;
     border-radius: 6px;
-    box-shadow: 0 2px 5px -1px #32325d40, 0 1px 3px -1px #0000004d;
-    margin: auto;
+    box-shadow: 0 2px 5px rgba(50, 50, 93, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    padding: 20px;
     max-width: 400px;
-    overflow: hidden;
-    padding: 20px 16px;
+    margin: 0 auto;
+}
+
+/* Input fields */
+.aadhaar-input {
     position: relative;
-    width: 100%;
+    margin: 20px 0;
+    border-bottom: 2px solid #adadad;
 }
 
-h2 {
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-}
-
-
-
-.card form{
-    padding: 0 40px;
-  box-sizing: border-box;
-}
-
-form .aadhaar-input{
-    position: relative;
-  border-bottom: 2px solid #adadad;
-  margin: 40px 0;
-}
-
-
-.aadhaar-input input{
+.aadhaar-input input {
     width: 100%;
     padding: 0 5px;
     height: 40px;
@@ -93,57 +72,40 @@ form .aadhaar-input{
     outline: none;
 }
 
-.aadhaar-input label{
-    position:absolute;
+.aadhaar-input label {
+    position: absolute;
     top: 50%;
     left: 5px;
-    color: rgb(92, 89, 88);
-    transform: (-50%);
-    font-size: 20px;
-    pointer-events: none;
+    color: #5c5958;
+    transform: translateY(-50%);
+    font-size: 18px;
+    transition: 0.2s ease;
 }
 
-.aadhaar-input span::before{
+.aadhaar-input input:focus ~ label,
+.aadhaar-input input:valid ~ label {
+    top: -15px;
+    font-size: 14px;
+    color: #054d8b;
+}
+
+.aadhaar-input span::before {
     content: '';
     position: absolute;
     top: 40px;
     left: 0;
-    width: 0%;
-    height: 2%;
+    width: 0;
+    height: 2px;
     background: #054d8b;
-  }
-  .aadhaar-input input:focus ~ label,
-  .aadhaar-input input:valid ~ label{
-    top: -15px;
-    color:#054d8b;
-  }
-  .aadhaar-input input:focus ~ span::before,
-  .aadhaar-input input:valid ~ span::before{
+    transition: width 0.2s ease;
+}
+
+.aadhaar-input input:focus ~ span::before,
+.aadhaar-input input:valid ~ span::before {
     width: 100%;
-  }
-
-.captcha-container {
-    display: flex;
-    gap: 0.5rem;
 }
 
-.captcha {
-    display: flex;
-    align-items: center;
-    background-color: #f0f0f0;
-    padding: 0.5rem;
-    border-radius: 4px;
-    font-family: monospace;
-}
-
-.captcha button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 0 0.25rem;
-}
-
+/* Button styles */
 button[type="submit"] {
     background: linear-gradient(to right, #020b50, #0088ff);
     color: white;
@@ -152,20 +114,45 @@ button[type="submit"] {
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
-    align-items: center;
+    display: block;
+    width: 100%;
+    margin-top: 20px;
 }
 
+button[type="submit"]:hover {
+    background: linear-gradient(to right, #0088ff, #020b50);
+}
+
+/* Footer styling */
 footer {
     background-color: #020348;
     color: white;
-    bottom: 0;
-    height: auto;
     text-align: center;
     font-size: 0.8rem;
-    left: 0;
-    padding-bottom: .9rem;
-    padding-top: .9rem;
+    padding: 10px;
     position: fixed;
+    bottom: 0;
     width: 100%;
-    z-index: 5;
+}
+
+/* Human verification message styling */
+.verification-message {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8d7da; /* Light red background for error */
+    color: #721c24; /* Dark red text */
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #f5c6cb;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.verification-message .icon-checkmark {
+    width: 20px;
+    height: 20px;
+    background-image: url('path-to-error-icon.png'); /* Placeholder for icon */
+    background-size: cover;
+    margin-right: 10px;
 }

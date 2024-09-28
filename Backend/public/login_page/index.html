@@ -1,104 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aadhaar Login</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
     <header>
-      <div class="left-logo">
-        <img
-          src="../Assets/Image/uidai_english_logo.svg"
-          alt="uadai english logo"
-          class="emblem"
-        />
-      </div>
-      <div class="right-logo">
-        <img
-          src="../Assets/Image/aadhar_logo.svg"
-          alt="Aadhaar Logo"
-          class="aadhaar-logo"
-        />
-      </div>
+        <div class="left-logo">
+            <img src="../Assets/Image/uidai_english_logo.svg" alt="UIDAI English logo" class="emblem">
+        </div>
+        <div class="right-logo">
+            <img src="../Assets/Image/aadhar_logo.svg" alt="Aadhaar Logo" class="aadhaar-logo">
+        </div>
     </header>
 
     <main>
-      <div login-section>
-        <div class="login_section_description">Login to Aadhaar via OTP</div>
-            <div class="card">
-            <form id="loginForm">
-              <div class="aadhaar-input">
-                <input type="text" id="aadhaarNumber" maxlength="12" pattern="\d{12}" required />
+        <div class="login-section">
+            <div id="humanVerificationMessage" class="verification-message" style="display: none;">
+                <div class="icon-checkmark"></div>
                 <span></span>
-                <label>Enter Aadhaar Number</label>
             </div>
             
-                
-                <!-- <div class="captcha-container">
-                        <input type="text" placeholder="Enter Captcha" required>
-                        <div class="captcha">
-                            <span id="captchaText">629be</span>
-                            <button type="button" id="refreshCaptcha" aria-label="Refresh Captcha">↻</button>
-                            <button type="button" id="audioCaptcha" aria-label="Audio Captcha">🔊</button>
-                        </div>
-                    </div> -->
-                <button type="submit">Login With OTP</button>
-            </form>
+            <div class="login_section_description">Login to Aadhaar via OTP</div>
+            <div class="card">
+                <form id="loginForm">
+                    <div class="aadhaar-input">
+                        <input type="text" id="aadhaarNumber" maxlength="12" pattern="\d{12}" required>
+                        <span></span>
+                        <label>Enter Aadhaar Number</label>
+                    </div>
+                    <button type="submit">Login With OTP</button>
+                </form>
+            </div>
         </div>
-      </div>
     </main>
 
     <footer>
-      <p>
-        Copyright © 2024 Unique Identification Authority of India All Rights
-        Reserved
-      </p>
+        <p>Copyright © 2024 Unique Identification Authority of India All Rights Reserved</p>
     </footer>
 
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('loginForm');
-    const refreshButton = document.getElementById('refreshCaptcha');
-    const audioButton = document.getElementById('audioCaptcha');
-    const captchaText = document.getElementById('captchaText');
+        document.addEventListener('DOMContentLoaded', function () {
+            const humanVerificationMessage = document.getElementById('humanVerificationMessage');
 
-    // Simulated captcha refresh
-    function refreshCaptcha() {
-        const newCaptcha = Math.random().toString(36).substring(2, 7);
-        captchaText.textContent = newCaptcha;
-    }
+            const showVerificationMessage = (message, isError) => {
+                humanVerificationMessage.style.display = 'flex';
+                humanVerificationMessage.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
+                humanVerificationMessage.style.color = isError ? '#721c24' : '#155724';
+                humanVerificationMessage.innerHTML = `<div class="icon-checkmark" style="background-image: url(${isError ? 'path-to-error-icon.png' : 'path-to-success-icon.png'});"></div><span>${message}</span>`;
+            };
 
-    // Simulated audio captcha
-    function playCaptchaAudio() {
-        alert('Audio captcha would play here.');
-    }
-
-    // Form submission handler
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        alert('OTP would be sent to the registered mobile number.');
-    });
-
-    document.getElementById('aadhaarNumber').addEventListener('input', function (e) {
-        const value = e.target.value;
-        // Remove any non-digit characters
-        e.target.value = value.replace(/\D/g, '');
-    
-        // Limit the input to 16 digits
-        if (e.target.value.length > 12) {
-            e.target.value = e.target.value.slice(0, 12);
-        }
-    });
-    
-
-    // Attach event listeners
-    refreshButton.addEventListener('click', refreshCaptcha);
-    audioButton.addEventListener('click', playCaptchaAudio);
-});
+            window.showBotVerificationMessage = function(isNotHuman) {
+                if (isNotHuman) {
+                    showVerificationMessage('You are verified as a bot!', false);
+                } else {
+                    showVerificationMessage('You are verified as bot!', true);
+                }
+            };
+        });
     </script>
-  <script src="../script.js"></script>
-
-  </body>
+</body>
 </html>

@@ -41,13 +41,18 @@ def classify_single_interaction(new_data: np.array):
 # Define the API endpoint
 @app.post("/classify")
 async def classify_interaction(interaction: InteractionData):
-    # Convert the input data to numpy array
-    new_data = np.array([interaction.numSegments, interaction.distinctMouseMotions,
-                         interaction.avgLength, interaction.avgTime,
-                         interaction.avgSpeed, interaction.varSpeed,
-                         interaction.varAcc])
-    
-    # Classify the interaction
-    result = classify_single_interaction(new_data)
-    print(f"Classification result: {result}")  # Log the classification result
-    return {"classification": result}
+    try:
+        # Convert the input data to numpy array
+        new_data = np.array([interaction.numSegments, interaction.distinctMouseMotions,
+                             interaction.avgLength, interaction.avgTime,
+                             interaction.avgSpeed, interaction.varSpeed,
+                             interaction.varAcc])
+        
+        # Classify the interaction
+        result = classify_single_interaction(new_data)
+        print(f"Classification result: {result}")  # Log the classification result
+        return {"classification": result} 
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return {"error": str(e)}, 422

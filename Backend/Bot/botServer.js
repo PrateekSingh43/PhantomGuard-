@@ -50,24 +50,27 @@ app.post('/logBotMouseMovements', async (req, res) => {
             varAcc: data.varAcc
         }, null, 2); // Pretty-print JSON
 
-        fs.writeFileSync(jsonFile, jsonData); // Write the JSON file
+        fs.writeFileSync(jsonFile, jsonData);
+        console.log('Data logged to JSON file:', jsonFile);
 
-        // Send data to FastAPI for classification
-        const response = await axios.post('http://localhost:8000/classify', data);
+        // Send data to the FastAPI model
+        const fastApiResponse = await axios.post('http://localhost:8000/your-model-endpoint', data);
 
-        console.log('Classification result from FastAPI:', response.data.classification);
+        // Determine if the classification result indicates bot or human
+        const classification = fastApiResponse.data.result; // Assuming the result contains 'human' or 'not_human'
 
-        // Delete the JSON log file after classification
+        // Respond to the bot with the classification result
+        res.status(200).json({ classification: classification });
+        
+        // Optionally delete the log after processing
         deleteJsonLog(jsonFile);
-
-        res.status(200).send('Data logged and classified successfully');
     } catch (error) {
-        console.error('Error processing request:', error);
-        res.status(500).send('Server error');
+        console.error('Error processing bot mouse movements:', error);
+        res.status(500).json({ error: 'Failed to log bot mouse movements' });
     }
 });
 
-// Start the bot server
+// Start the server
 app.listen(port, () => {
-    console.log('Bot server is running on http://localhost:' + port);
+    console.log(`Bot server listening at http://localhost:${port}`);
 });

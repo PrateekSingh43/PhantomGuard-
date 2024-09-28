@@ -37,8 +37,8 @@ const stopCollection = () => {
 };
 
 const processMouseMovements = () => {
-    const numSegments = mouseMotions.length;
-    const distinctMouseMotions = new Set(mouseMotions.map(m => `${m.length}-${m.duration}`)).size;
+    const numSegments = mouseMotions.length || 0;
+    const distinctMouseMotions = new Set(mouseMotions.map(m => `${m.length}-${m.duration}`)).size || 0;
     const avgLength = numSegments > 0 ? mouseMotions.reduce((sum, m) => sum + m.length, 0) / numSegments : 0;
     const avgTime = numSegments > 0 ? mouseMotions.reduce((sum, m) => sum + m.duration, 0) / numSegments : 0;
     const avgSpeed = numSegments > 0 ? mouseMotions.reduce((sum, m) => sum + (m.length / m.duration), 0) / numSegments : 0;
@@ -49,12 +49,30 @@ const processMouseMovements = () => {
 
     const data = { numSegments, distinctMouseMotions, avgLength, avgTime, avgSpeed, varSpeed, varAcc };
 
+    // Ensure all values are valid
+    if (Object.values(data).some(val => isNaN(val) || val === null || val === undefined)) {
+        console.error("Invalid data: ", data);
+        return;  // Don't send the request if data is invalid
+    }
+
     fetch('/logMouseMovements', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
+    }).then(response => {
+        // Assuming a successful classification redirects to /success
+        if (response.redirected && response.url.includes('/success')) {
+            // Delay message display for at least 2 to 3 seconds
+            setTimeout(() => {
+                document.getElementById('humanVerificationMessage').style.display = 'block';
+            }, 2000);  // Delay of 3000ms (3 seconds)
+        }
+    }).catch(err => {
+        console.error("Error: ", err);
     });
 };
+
+
 
 document.addEventListener('mousemove', () => {
     if (!isCollecting) {

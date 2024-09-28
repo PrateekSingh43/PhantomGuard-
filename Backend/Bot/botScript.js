@@ -2,7 +2,7 @@ const axios = require('axios');
 const puppeteer = require('puppeteer');
 
 const MIN_TOTAL_DURATION = 2000; // Minimum total time for all pages (2 seconds)
-const MAX_TOTAL_DURATION = 7000; // Maximum total time for all pages (7 seconds)
+const MAX_TOTAL_DURATION = 15000; // Maximum total time for all pages (15 seconds)
 let mouseMotions = [];
 
 // Pages to visit on localhost:3000 (human interaction demo site)
@@ -42,7 +42,7 @@ const simulateMouseMovement = async (page, timeToSpend) => {
 };
 
 // Function to process mouse movements and send data to the bot server
-const processMouseMovements = () => {
+const processMouseMovements = async (page) => {
     if (mouseMotions.length === 0) {
         console.log('No mouse movements recorded.');
         return;
@@ -71,9 +71,22 @@ const processMouseMovements = () => {
 
     console.log('Sending combined sub-parameters to server:', data);
 
-    axios.post('http://localhost:3001/logBotMouseMovements', data)
-        .then(response => console.log('Server response:', response.data))
-        .catch(error => console.error('Error sending data to server:', error));
+    try {
+        const response = await axios.post('http://localhost:3001/logBotMouseMovements', data);
+        console.log('Server response:', response.data);
+        
+        // Check classification result and display message accordingly
+        const isNotHuman = response.data.classification === 'not_human';
+        await page.evaluate(isNotHuman => {
+            window.showBotVerificationMessage(isNotHuman);
+        }, isNotHuman);
+        
+        // Wait for 3 seconds to allow the user to see the message before ending
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+    } catch (error) {
+        console.error('Error sending data to server:', error);
+    }
 };
 
 // Function to generate random time distribution between pages, ensuring total is between 2 and 7 seconds
@@ -121,11 +134,11 @@ const visitPages = async () => {
         }
     }
 
+    // Process the collected mouse movements once all pages have been visited
+    await processMouseMovements(page); // Pass the page variable here
+
     console.log('Closing page session.');
     await page.close();
-
-    // Process the collected mouse movements once all pages have been visited
-    processMouseMovements();
 
     console.log('Closing browser session.');
     await browser.close();
